@@ -46,7 +46,7 @@ jobs:
         run: docker build -f docker/frontend.Dockerfile -t cloudpilot-frontend:ci .
 
       - name: Scan backend Docker image with Trivy
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: cloudpilot-backend:ci
           format: table
@@ -54,7 +54,7 @@ jobs:
           severity: CRITICAL,HIGH,MEDIUM
 
       - name: Scan frontend Docker image with Trivy
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: cloudpilot-frontend:ci
           format: table
