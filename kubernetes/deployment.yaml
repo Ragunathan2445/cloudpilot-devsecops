@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudpilot-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudpilot-backend
+  template:
+    metadata:
+      labels:
+        app: cloudpilot-backend
+    spec:
+      containers:
+        - name: backend
+          image: terrafromproject-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudpilot-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudpilot-frontend
+  template:
+    metadata:
+      labels:
+        app: cloudpilot-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: terrafromproject-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80

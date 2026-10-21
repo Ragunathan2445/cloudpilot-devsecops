@@ -1,0 +1,37 @@
+# Secrets and environment variables
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+secrets.*
+
+# Terraform state and local files
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfstate.backup
+terraform.tfplan
+crash.log
+crash.*.log
+
+# Terraform variable files may contain secrets
+*.tfvars
+*.tfvars.json
+
+# Node.js dependencies and build output
+node_modules/
+dist/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# GitHub and local tooling
