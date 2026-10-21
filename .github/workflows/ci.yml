@@ -45,7 +45,7 @@ jobs:
       - name: Build frontend Docker image
         run: docker build -f docker/frontend.Dockerfile -t cloudpilot-frontend:ci .
 
-             - name: Scan backend Docker image with Trivy
+      - name: Scan backend Docker image with Trivy
         uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: cloudpilot-backend:ci
