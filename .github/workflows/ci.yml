@@ -13,6 +13,8 @@ jobs:
   publish:
     name: Publish Docker Images to GHCR
     runs-on: ubuntu-latest
+    env:
+      REGISTRY_OWNER: ragunathan2445
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
