@@ -10,17 +10,79 @@ on:
       - main
 
 jobs:
+  build:
+    name: Build, Test and Scan Application
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Download project code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Backend validation
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Check backend syntax
+        working-directory: backend
+        run: node --check server.js
+
+      # Frontend validation
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      # Build Docker images
+      - name: Build backend Docker image
+        run: docker build -f docker/backend.Dockerfile -t cloudpilot-backend:ci .
+
+      - name: Build frontend Docker image
+        run: docker build -f docker/frontend.Dockerfile -t cloudpilot-frontend:ci .
+
+      # Backend security scan
+      - name: Scan backend Docker image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: cloudpilot-backend:ci
+          format: table
+          exit-code: '0'
+          severity: CRITICAL,HIGH,MEDIUM
+
+      # Frontend security scan
+      - name: Scan frontend Docker image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: cloudpilot-frontend:ci
+          format: table
+          exit-code: '0'
+          severity: CRITICAL,HIGH,MEDIUM
+
   publish:
     name: Publish Docker Images to GHCR
     runs-on: ubuntu-latest
-    env:
-      REGISTRY_OWNER: ragunathan2445
+
     needs: build
+
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     permissions:
       contents: read
       packages: write
+
+    env:
+      REGISTRY_OWNER: ragunathan2445
 
     steps:
       - name: Download project code
@@ -36,68 +98,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Publish backend image
       - name: Build and publish backend image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/backend.Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/cloudpilot-backend:latest
+          tags: ghcr.io/${{ env.REGISTRY_OWNER }}/cloudpilot-backend:latest
 
+      # Publish frontend image
       - name: Build and publish frontend image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/frontend.Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/cloudpilot-frontend:latest
-  build:
-    name: Build and Test Application
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download project code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install backend dependencies
-        working-directory: backend
-        run: npm ci
-
-      - name: Check backend syntax
-        working-directory: backend
-        run: node --check server.js
-
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
-
-      - name: Build frontend
-        working-directory: frontend
-        run: npm run build
-
-      - name: Build backend Docker image
-        run: docker build -f docker/backend.Dockerfile -t cloudpilot-backend:ci .
-
-      - name: Build frontend Docker image
-        run: docker build -f docker/frontend.Dockerfile -t cloudpilot-frontend:ci .
-
-      - name: Scan backend Docker image with Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: cloudpilot-backend:ci
-          format: table
-          exit-code: '0'
-          severity: CRITICAL,HIGH,MEDIUM
-
-      - name: Scan frontend Docker image with Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: cloudpilot-frontend:ci
-          format: table
-          exit-code: '0'
-          severity: CRITICAL,HIGH,MEDIUM 
+          tags: ghcr.io/${{ env.REGISTRY_OWNER }}/cloudpilot-frontend:latest
