@@ -37,4 +37,4 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
-        run: npm run buildgit status
+        run: npm run build
