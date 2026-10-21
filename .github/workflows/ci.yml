@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Build Frontend and Backend
+    name: Build and Test Application
     runs-on: ubuntu-latest
 
     steps:
@@ -38,3 +38,9 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+      - name: Build backend Docker image
+        run: docker build -f docker/backend.Dockerfile -t cloudpilot-backend:ci .
+
+      - name: Build frontend Docker image
+        run: docker build -f docker/frontend.Dockerfile -t cloudpilot-frontend:ci .
