@@ -1,4 +1,3 @@
-```yaml
 name: CloudPilot CI Pipeline
 
 on:
